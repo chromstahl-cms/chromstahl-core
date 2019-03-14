@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class JarFileScanner {
     private static final Logger logger = LoggerFactory.getLogger(JarFileScanner.class);
-    private static final File CACHE_FILE = new File("plugins.cache");
+    private static final File CACHE_FILE = new File(LocalDiskStorage.getInstance().getRoot(), "plugins.cache");
     private static final CacheTypeReference CACHE_TYPE = new CacheTypeReference();
     private static final ObjectMapper objm = new ObjectMapper();
     private static int DEFAULT_THREAD_COUNT = 4;
@@ -112,6 +112,8 @@ public class JarFileScanner {
                 res.add(holder);
                 try (JarFile jarFile = new JarFile(innerZipperJarFile)) {
                     holder.setUnzippedDirectory(unpackJarFileToTmp(jarFile, innerZipperJarFile.getName().replace(".jar", "")));
+                } catch (IOException e) {
+                    throw new IOException("Failed to unpack jar", e);
                 }
                 return holder;
             };

@@ -21,7 +21,7 @@ public final class LocalDiskStorage {
     public void init() {
         if (initialized) return;
 
-        var root = new File(System.getProperty("user.home") + File.pathSeparator + ".kmscache");
+        var root = new File(System.getProperty("user.home") + File.separator + ".kmscache");
         if (!root.isDirectory()) {
             if (!root.mkdir()) {
                 logger.error("Failed to create " + root.getPath() + " check permissions or disk corruptions");
