@@ -2,6 +2,7 @@ package software.kloud.kmscore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import software.kloud.kmscore.util.LocalDiskStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 public class KmsCoreApplication {
 
 	public static void main(String[] args) {
+		LocalDiskStorage.getInstance().init();
 		SpringApplication.run(KmsCoreApplication.class, args);
 	}
 

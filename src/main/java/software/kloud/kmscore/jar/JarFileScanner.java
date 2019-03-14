@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.kloud.kmscore.util.LocalDiskStorage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -89,14 +90,15 @@ public class JarFileScanner {
 
                 jarFileTmpMap.put(pluginDirectory, scanDirectory(pluginDirectory));
                 scannedDirectories.add(pluginDirectory);
-                hasScanned = true;
             }
         } finally {
             this.writeCacheToDisk();
         }
+
+        hasScanned = true;
     }
 
-    private Set<JarStateHolder> scanDirectory(File directory) throws IOException {
+    private Set<JarStateHolder> scanDirectory(File directory) {
         var jarFiles = directory.listFiles((dir, name) -> name.endsWith(".jar") | name.endsWith(".war"));
         if (null == jarFiles) return Collections.emptySet();
 
@@ -138,16 +140,15 @@ public class JarFileScanner {
      * @param jarfile JarFile to unpack
      * @return Temporary directory in which the jarFile was unpacked
      * @throws IOException If not able to unpack jar
-     *                     TODO: Do not use /tmp maybe?
      */
     private File unpackJarFileToTmp(JarFile jarfile, String name) throws IOException {
-        var tmpDir = Files.createTempDirectory(String.format("KMS-Plugin-%s", name));
+        var tmpDir = Files.createDirectory(new File(LocalDiskStorage.getInstance().getRoot(), String.format("KMS-Plugin-%s", name)).toPath());
 
         Iterator<JarEntry> entryIterator = jarfile.entries().asIterator();
 
         while (entryIterator.hasNext()) {
             var entry = entryIterator.next();
-            var destFile = new File(tmpDir.toAbsolutePath().toString() + File.separator + entry.getName() + File.separator);
+            var destFile = new File(tmpDir.toFile(), entry.getName());
             if (entry.getName().endsWith("/") && !destFile.isDirectory()) {
                 if (!destFile.mkdir()) {
                     throw new IllegalStateException("Failed to create tmp directory: " + destFile.getAbsolutePath());
@@ -176,6 +177,7 @@ public class JarFileScanner {
 
     @SuppressWarnings("WeakerAccess")
     public Stream<JarStateHolder> streamAll() {
+        guardAccess();
         return this.jarFileTmpMap
                 .values()
                 .stream()
