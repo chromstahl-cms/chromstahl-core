@@ -87,7 +87,7 @@ public class PackageAwareJarDirectoryTraverser {
     }
 
     /**
-     * Traverses directories. Gets called recursivly. Runs in its own future.
+     * Traverses directories. Gets called recursively. Runs in its own future.
      *
      * @param node       Filesystem node to start looking from
      * @param foundSoFar Keeps track of already found classes
