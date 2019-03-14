@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class SecurityControllerAdvice {
     private static final Logger log = LoggerFactory.getLogger(SecurityControllerAdvice.class);
 
-    @ExceptionHandler({SecurityException.class})
+    /*@ExceptionHandler({SecurityException.class})
     public String handleSecurityException(SecurityException e) {
         log.error("Security exception" ,e);
         return "Incorrect auth header present";
-    }
+    }*/
 }

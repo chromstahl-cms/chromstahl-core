@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: kloudfile
+      MYSQL_DATABASE: kms
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql/lib:/var/lib/mysql
+      - ./mysql/cnf:/etc/mysql/conf.d
+      - ./mysql/log:/var/log/mysql

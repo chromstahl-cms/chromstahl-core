@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/token").permitAll()
+                .antMatchers(HttpMethod.POST, "/register").permitAll()
                 .antMatchers(HttpMethod.GET, "/watchdog/").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/accountInfo/verifyEmail").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/signup").permitAll()

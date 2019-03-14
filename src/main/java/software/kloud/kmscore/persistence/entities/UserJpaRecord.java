@@ -1,23 +1,32 @@
 package software.kloud.kmscore.persistence.entities;
 
+import software.kloud.kmscore.util.Constants;
 import software.kloud.sc.SilverCommunication;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "user")
 public class UserJpaRecord implements SilverCommunication {
     @OneToMany
     private final List<RoleJpaRecord> roleJpaRecords = new ArrayList<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id", unique = true)
+    private Integer id;
+    @Size(min = 3)
+    @Column(unique = true)
     private String userName;
+    @Pattern(regexp = Constants.PASSWORD_REGEX)
     private String password;
     @OneToMany
     private List<TokenJpaRecord> tokens;
-    @Pattern(regexp = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+    @Pattern(regexp = Constants.EMAIL_REGEX)
     private String email;
     @Column(name = "silverIdentifier", length = 300)
     private String silverIdentifier;
@@ -66,5 +75,13 @@ public class UserJpaRecord implements SilverCommunication {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

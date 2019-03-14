@@ -8,6 +8,7 @@ import software.kloud.kmscore.persistence.entities.UserJpaRecord;
 import software.kloud.kmscore.persistence.repositories.TokenRepository;
 import software.kloud.kmscore.persistence.repositories.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -37,10 +38,15 @@ public class TokenFactory {
         token.setExpiryDate(expiry);
         token.setToken(generateToken());
 
+        if (userJpaRecord.getTokens() == null) {
+            userJpaRecord.setTokens(new ArrayList<>());
+        }
+
         userJpaRecord.getTokens().add(token);
 
-        userRepository.save(userJpaRecord);
+        // TODO Use silver here
         tokenRepository.save(token);
+        userRepository.save(userJpaRecord);
 
         return token;
     }
