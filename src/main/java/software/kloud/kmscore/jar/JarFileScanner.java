@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class JarFileScanner {
     private static final Logger logger = LoggerFactory.getLogger(JarFileScanner.class);
-    private static final File CACHE_FILE = new File(LocalDiskStorage.getInstance().getRoot(), "plugins.cache");
+    private static final File CACHE_FILE = new File(LocalDiskStorage.getStaticRoot(), "plugins.cache");
     private static final CacheTypeReference CACHE_TYPE = new CacheTypeReference();
     private static final ObjectMapper objm = new ObjectMapper();
     private static int DEFAULT_THREAD_COUNT = 4;
@@ -144,7 +144,7 @@ public class JarFileScanner {
      * @throws IOException If not able to unpack jar
      */
     private File unpackJarFileToTmp(JarFile jarfile, String name) throws IOException {
-        var tmpDir = Files.createDirectory(new File(LocalDiskStorage.getInstance().getRoot(), String.format("KMS-Plugin-%s", name)).toPath());
+        var tmpDir = Files.createDirectory(new File(LocalDiskStorage.getStaticRoot(), String.format("KMS-Plugin-%s", name)).toPath());
 
         Iterator<JarEntry> entryIterator = jarfile.entries().asIterator();
 
