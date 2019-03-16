@@ -1,4 +1,4 @@
-package software.kloud.kmscore.persistence.entities;
+package software.kloud.kmscore.persistence.security.entities;
 
 import org.springframework.security.core.GrantedAuthority;
 

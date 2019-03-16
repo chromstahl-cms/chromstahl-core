@@ -1,4 +1,4 @@
-package software.kloud.kmscore.persistence.entities;
+package software.kloud.kmscore.persistence.security.entities;
 
 import software.kloud.kmscore.util.Constants;
 import software.kloud.sc.SilverCommunication;

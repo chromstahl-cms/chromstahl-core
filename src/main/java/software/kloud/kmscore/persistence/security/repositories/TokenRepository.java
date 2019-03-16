@@ -1,7 +1,7 @@
-package software.kloud.kmscore.persistence.repositories;
+package software.kloud.kmscore.persistence.security.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import software.kloud.kmscore.persistence.entities.TokenJpaRecord;
+import software.kloud.kmscore.persistence.security.entities.TokenJpaRecord;
 import software.kloud.sc.SilverRepository;
 
 

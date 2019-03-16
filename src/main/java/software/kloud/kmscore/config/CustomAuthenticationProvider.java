@@ -6,7 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import software.kloud.kmscore.persistence.repositories.UserRepository;
+import software.kloud.kmscore.persistence.security.repositories.UserRepository;
 
 import java.util.Collections;
 
@@ -25,14 +25,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String email = authentication.getName();
         String password = authentication.getCredentials()
                 .toString();
-
-//        Advertisers advertisers = advertiserRepository
-//                .findByEmailAddress(email)
-//                .orElseThrow(() -> new UsernameNotFoundException("UserJpaRecord not found"));
-//
-//        if (!BCrypt.checkpw(password, advertisers.getPassword())) {
-//            throw new BadCredentialsException("Bad credentials");
-//        }
 
         return new UsernamePasswordAuthenticationToken
                 (email, password, Collections.emptyList());

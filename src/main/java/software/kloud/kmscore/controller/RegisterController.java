@@ -6,8 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import software.kloud.kmscore.dto.RegisterDTO;
-import software.kloud.kmscore.persistence.entities.UserJpaRecord;
-import software.kloud.kmscore.persistence.repositories.UserRepository;
+import software.kloud.kmscore.persistence.security.entities.UserJpaRecord;
+import software.kloud.kmscore.persistence.security.repositories.UserRepository;
 import software.kloud.kmscore.util.TokenFactory;
 
 import javax.validation.ConstraintViolation;
@@ -28,6 +28,9 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<String> store(@RequestBody RegisterDTO registerDTO) {
+        if (userRepository.findByUserName(registerDTO.getUserName()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Username already taken");
+        }
         var user = new UserJpaRecord();
 
         user.setUserName(registerDTO.getUserName());

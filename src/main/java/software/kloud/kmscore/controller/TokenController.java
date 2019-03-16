@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import software.kloud.kmscore.dto.TokenAuthDTO;
-import software.kloud.kmscore.persistence.entities.UserJpaRecord;
-import software.kloud.kmscore.persistence.repositories.UserRepository;
+import software.kloud.kmscore.persistence.security.entities.UserJpaRecord;
+import software.kloud.kmscore.persistence.security.repositories.UserRepository;
 import software.kloud.kmscore.util.TokenFactory;
 
 @Controller

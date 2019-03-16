@@ -3,10 +3,10 @@ package software.kloud.kmscore.util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import software.kloud.kmscore.persistence.entities.TokenJpaRecord;
-import software.kloud.kmscore.persistence.entities.UserJpaRecord;
-import software.kloud.kmscore.persistence.repositories.TokenRepository;
-import software.kloud.kmscore.persistence.repositories.UserRepository;
+import software.kloud.kmscore.persistence.security.entities.TokenJpaRecord;
+import software.kloud.kmscore.persistence.security.entities.UserJpaRecord;
+import software.kloud.kmscore.persistence.security.repositories.TokenRepository;
+import software.kloud.kmscore.persistence.security.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Calendar;
