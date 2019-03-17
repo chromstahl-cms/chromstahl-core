@@ -2,25 +2,18 @@ package software.kloud.kmscore.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import software.kloud.KMSPluginSDK.KMSStorage;
 
 import java.io.File;
 
-public final class LocalDiskStorage {
+@Component
+public final class LocalDiskStorage implements KMSStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalDiskStorage.class);
-    private boolean initialized = false;
     private File root;
 
-    private LocalDiskStorage() {
-    }
-
-    public static LocalDiskStorage getInstance() {
-        return INSTANCE_HOLDER.INSTANCE;
-    }
-
-    public void init() {
-        if (initialized) return;
-
+    public LocalDiskStorage() {
         var root = new File(System.getProperty("user.home") + File.separator + ".kmscache");
         if (!root.isDirectory()) {
             if (!root.mkdir()) {
@@ -30,10 +23,29 @@ public final class LocalDiskStorage {
         }
 
         this.root = root;
-
-        initialized = true;
     }
 
+
+    /**
+     * Meant for use before the Spring application context is initialized.
+     * Caching and tracking of files is _NOT_ enabled and all resources created depending on this root need to
+     * perform their own cleanup
+     *
+     * @return java.io.File of the system storage root
+     */
+    public static File getStaticRoot() {
+        var root = new File(System.getProperty("user.home") + File.separator + ".kmscache");
+        if (!root.isDirectory()) {
+            if (!root.mkdir()) {
+                logger.error("Failed to create " + root.getPath() + " check permissions or disk corruptions");
+                System.exit(-1);
+            }
+        }
+
+        return root;
+    }
+
+    @Override
     public File getRoot() {
         return root;
     }
