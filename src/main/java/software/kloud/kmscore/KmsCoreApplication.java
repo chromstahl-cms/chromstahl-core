@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class KmsCoreApplication {
 
     public static void main(String[] args) throws IOException, PluginRegisterException {
-        LocalDiskStorage.getInstance().init();
         PluginLoader pluginLoader = new PluginLoader(new File("plugins"));
         var allClasses = pluginLoader.load();
 
