@@ -9,4 +9,4 @@ before-install:
 install:
   - sudo apt-get install -yqq cowsay
 script:
-  - /usr/games/cowwwsay $TEXT
+  - /usr/games/cowsay $TEXT
