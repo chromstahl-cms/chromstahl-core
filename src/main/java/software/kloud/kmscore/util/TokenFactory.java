@@ -5,10 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import software.kloud.kmscore.persistence.security.entities.TokenJpaRecord;
-import software.kloud.kmscore.persistence.security.entities.UserJpaRecord;
-import software.kloud.kmscore.persistence.security.repositories.TokenRepository;
-import software.kloud.kmscore.persistence.security.repositories.UserRepository;
+import software.kloud.kms.entities.TokenJpaRecord;
+import software.kloud.kms.entities.UserJpaRecord;
+import software.kloud.kms.repositories.TokenRepository;
+import software.kloud.kms.repositories.UserRepository;
 import software.kloud.silver.client.CommunicationClient;
 
 import java.io.IOException;

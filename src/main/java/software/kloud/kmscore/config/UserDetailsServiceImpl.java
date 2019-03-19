@@ -6,7 +6,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import software.kloud.kmscore.persistence.security.repositories.UserRepository;
+import software.kloud.kms.repositories.UserRepository;
+import software.kloud.kmscore.persistence.security.entities.RoleJpaRecordAdapter;
+
+import java.util.stream.Collectors;
 
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -21,7 +24,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUserName(username)
-                .map(user -> new User(user.getUserName(), user.getPassword(), user.getRoleJpaRecords()))
+                .map(user -> new User(user.getUserName(), user.getPassword(), user.getRoleJpaRecords()
+                        .stream()
+                        .map(it -> (RoleJpaRecordAdapter) it)
+                        .collect(Collectors.toList())))
                 .orElseThrow(() -> new UsernameNotFoundException("user not found"));
     }
 }

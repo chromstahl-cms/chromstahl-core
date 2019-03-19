@@ -1,10 +1,14 @@
-package software.kloud.kmscore;
+package software.kloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import software.kloud.KMSPluginSDK.IKMSPlugin;
 import software.kloud.KMSPluginSDK.KMSPlugin;
-import software.kloud.kmscore.util.LocalDiskStorage;
+import software.kloud.kmscore.PluginLoader;
+import software.kloud.kmscore.PluginManager;
+import software.kloud.kmscore.PluginRegisterException;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@EnableWebSecurity
 @SpringBootApplication
+@ComponentScan("software.kloud")
 public class KmsCoreApplication {
 
     public static void main(String[] args) throws IOException, PluginRegisterException {

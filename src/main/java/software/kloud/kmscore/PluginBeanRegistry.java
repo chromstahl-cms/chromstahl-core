@@ -9,6 +9,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.*;
+import software.kloud.KmsCoreApplication;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

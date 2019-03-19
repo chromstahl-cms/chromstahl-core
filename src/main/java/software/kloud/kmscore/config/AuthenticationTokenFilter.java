@@ -7,8 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import software.kloud.kmscore.persistence.security.entities.TokenJpaRecord;
-import software.kloud.kmscore.persistence.security.repositories.TokenRepository;
+import software.kloud.kms.entities.TokenJpaRecord;
+import software.kloud.kms.repositories.TokenRepository;
 
 
 import javax.servlet.FilterChain;

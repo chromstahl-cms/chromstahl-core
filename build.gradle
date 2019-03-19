@@ -25,6 +25,7 @@ dependencies {
 	compile group: 'software.kloud', name: 'KMSPluginSDK', version: '1.0.2'
 	compile group: 'software.kloud', name: 'silver-client-dep', version: '1.0'
 	compile group: 'software.kloud', name: 'silver-client', version: '1.0'
+	compile group: 'software.kloud', name: 'KMS-Entities', version: '1.0.5'
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

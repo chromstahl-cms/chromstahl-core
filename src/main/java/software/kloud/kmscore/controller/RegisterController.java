@@ -5,9 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import software.kloud.kms.entities.UserJpaRecord;
+import software.kloud.kms.repositories.UserRepository;
 import software.kloud.kmscore.dto.RegisterDTO;
-import software.kloud.kmscore.persistence.security.entities.UserJpaRecord;
-import software.kloud.kmscore.persistence.security.repositories.UserRepository;
 import software.kloud.kmscore.util.TokenFactory;
 
 import javax.validation.ConstraintViolation;

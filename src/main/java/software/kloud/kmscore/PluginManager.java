@@ -14,7 +14,7 @@ public class PluginManager {
         this.pluginsSet = new LinkedHashSet<>();
     }
 
-    protected void registerPlugin(Class<? extends IKMSPlugin> cls) throws PluginRegisterException {
+    public void registerPlugin(Class<? extends IKMSPlugin> cls) throws PluginRegisterException {
         KMSPlugin meta = cls.getAnnotation(KMSPlugin.class);
         IKMSPlugin p;
         try {
@@ -36,7 +36,7 @@ public class PluginManager {
         final String author;
         final String version;
         final short priority;
-        final T plugin;
+        public final T plugin;
 
         public PluginHolder(String author, String version, T plugin) {
             this(author, version, (short) 0, plugin);
