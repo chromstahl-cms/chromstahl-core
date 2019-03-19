@@ -11,6 +11,6 @@ before_script:
   - git clone https://github.com/kloud-ms/kms-sample-plugin.git
   - cd kms-sample-plugin
   - ./gradlew build
-  - mv build/libs/* ../plugins
+  - mv build/libs/* ../../plugins
 script:
   - ./gradlew $SCRIPT
