@@ -44,7 +44,7 @@ public class KmsCoreApplication {
     }
 
     public static class LoadedClassesHolder {
-        private List<Class<?>> classes;
+        private List<Class<?>> classes = new ArrayList<>();
 
         private LoadedClassesHolder() {
 
