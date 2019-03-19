@@ -1,5 +1,9 @@
 image: abstruse_builder
 
+matrix:
+  - env: TEXT=howdy
+  - env: TEXT=hello
+
 branches:
   test:
     - master
@@ -8,4 +12,4 @@ before-install:
 install:
   - apt-get install -yqq cowsay
 script:
-  - cowsay howdx
+  - cowsay $TEXT
