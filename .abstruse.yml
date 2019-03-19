@@ -4,12 +4,9 @@ matrix:
   - env: TEXT=howdy
   - env: TEXT=hello
 
-branches:
-  test:
-    - master
 before-install:
-  - apt-get -yqq update
+  - sudo apt-get -yqq update
 install:
-  - apt-get install -yqq cowsay
+  - sudo apt-get install -yqq cowsay
 script:
   - cowsay $TEXT
