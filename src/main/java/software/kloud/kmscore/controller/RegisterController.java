@@ -44,8 +44,6 @@ public class RegisterController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
         }
 
-        // TODO After testing, replace with calls to Silver
-        userRepository.save(user);
         var token = tokenFactory.generateToken(user);
         return ResponseEntity.ok(token.getToken());
     }

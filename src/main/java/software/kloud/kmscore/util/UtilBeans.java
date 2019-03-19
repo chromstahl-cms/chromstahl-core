@@ -7,9 +7,9 @@ import software.kloud.silver.client.CommunicationClient;
 
 @Component
 public class UtilBeans {
-    @Value("silver.key")
+    @Value("${silver.key}")
     private String key;
-    @Value("silver.url")
+    @Value("${silver.url}")
     private String url;
 
     @Bean
