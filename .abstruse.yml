@@ -13,4 +13,4 @@ before_script:
   - ./gradlew build
   - mv build/libs/* ../plugins
 script:
-  - ./gradlew bootJar
+  - ./gradlew $SCRIPT
