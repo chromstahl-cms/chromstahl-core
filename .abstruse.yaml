@@ -1,0 +1,9 @@
+branches:
+  test:
+    - master
+before-install:
+  - apt-get -yqq update
+install:
+  - apt-get install -yqq cowsay
+script:
+  - cowsay howdy
