@@ -6,4 +6,4 @@ before-install:
 install:
   - apt-get install -yqq cowsay
 script:
-  - cowsay howdy
+  - cowsay howd
