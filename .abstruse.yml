@@ -1,12 +1,16 @@
-image: abstruse_builder
+image: java_builder_docker_java12
 
 matrix:
-  - env: TEXT=howdy
-  - env: TEXT=hello
+  - env: SCRIPT=bootJar
 
-before-install:
-  - sudo apt-get -yqq update
-install:
-  - sudo apt-get install -yqq cowsay
+before_script:
+  - docker login registry.kloud.software -u $DOCKER_USER -p $DOCKER_PASS
+  - docker-compose up -d
+  - mkdir tmpPlugin
+  - cd tmpPlugin
+  - git clone https://github.com/kloud-ms/kms-sample-plugin.git
+  - cd kms-sample-plugin
+  - ./gradlew build
+  - mv build/libs/* ../plugins
 script:
-  - /usr/games/cowsay $TEXT
+  - ./gradlew bootJar
