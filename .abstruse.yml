@@ -1,7 +1,7 @@
 image: java_builder_docker_java12
 
 matrix:
-  - env: SCRIPT=bootJar
+  - env: SCRIPT=test
 
 before_script:
   - docker login registry.kloud.software -u $DOCKER_USER -p $DOCKER_PASS
@@ -13,4 +13,4 @@ before_script:
   - ./gradlew build
   - mv build/libs/* ../../plugins
 script:
-  - ./gradlew $SCRIPT
+  - ./gradlew $SCRIPT --stacktrace
