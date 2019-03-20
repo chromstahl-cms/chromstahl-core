@@ -10,9 +10,13 @@ before_script:
   - cd tmpPlugin
   - git clone https://github.com/kloud-ms/kms-sample-plugin.git
   - cd kms-sample-plugin
-  - ./gradlew build
+  - ./gradlew build -x test
   - mv build/libs/* ../../plugins
 script:
   - ./gradlew $SCRIPT --stacktrace
 after_script:
+  - docker-compose down
+after_successful:
+  - docker-compose down
+after_failure:
   - docker-compose down
