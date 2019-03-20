@@ -14,3 +14,5 @@ before_script:
   - mv build/libs/* ../../plugins
 script:
   - ./gradlew $SCRIPT --stacktrace
+after_script:
+  - docker-compose down
