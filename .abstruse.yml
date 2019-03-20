@@ -5,6 +5,7 @@ matrix:
 
 before_script:
   - docker login registry.kloud.software -u $DOCKER_USER -p $DOCKER_PASS
+  - docker-compose down
   - docker-compose up -d
   - echo $(pwd)
   - mkdir tmpPlugin
