@@ -8,12 +8,8 @@ before_script:
   - docker-compose up -d
   - echo $(pwd)
   - mkdir tmpPlugin
-  - cd tmpPlugin && echo $(pwd)
-  - git clone https://github.com/kloud-ms/kms-sample-plugin.git
-  - cd kms-sample-plugin
-  - echo $(pwd)
-  - ./gradlew build -x test
-  - mv build/libs/* ../../plugins
+  - cd tmpPlugin && git clone https://github.com/kloud-ms/kms-sample-plugin.git \
+  && cd kms-sample-plugin && ./gradlew build -x test && mv build/libs/* ../../plugins
 script:
   - ./gradlew $SCRIPT --stacktrace
 after_script:
