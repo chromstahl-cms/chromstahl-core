@@ -6,6 +6,7 @@ matrix:
 before_script:
   - docker login registry.kloud.software -u $DOCKER_USER -p $DOCKER_PASS
   - docker-compose up -d
+  - echo $(pwd)
   - mkdir tmpPlugin
   - cd tmpPlugin
   - git clone https://github.com/kloud-ms/kms-sample-plugin.git
