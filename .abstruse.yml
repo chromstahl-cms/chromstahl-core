@@ -4,6 +4,7 @@ matrix:
   - env: SCRIPT=test
 
 before_script:
+  - docker ps
   - docker login registry.kloud.software -u $DOCKER_USER -p $DOCKER_PASS
   - docker-compose down
   - docker-compose up -d
