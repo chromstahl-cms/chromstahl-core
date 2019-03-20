@@ -10,6 +10,7 @@ before_script:
   - cd tmpPlugin
   - git clone https://github.com/kloud-ms/kms-sample-plugin.git
   - cd kms-sample-plugin
+  - echo $(pwd)
   - ./gradlew build -x test
   - mv build/libs/* ../../plugins
 script:
