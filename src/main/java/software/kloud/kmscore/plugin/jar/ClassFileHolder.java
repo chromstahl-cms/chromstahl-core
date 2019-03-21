@@ -9,7 +9,7 @@ public class ClassFileHolder {
      */
     private File classFile;
     /**
-     * Fully qualified class name in Binray format, consisting of package and class name
+     * Fully qualified class name in Binary format, consisting of package and class name
      * see: https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
      */
     private String absoluteClassName;

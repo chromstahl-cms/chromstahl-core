@@ -75,7 +75,7 @@ public class JarFileScanner {
     }
 
 
-    public void scan(ScanMode scanMode) throws IOException {
+    public void scan(ScanMode scanMode) throws JarUnpackingException, IOException {
         try {
             if (scanMode == ScanMode.FORCE) {
                 scannedDirectories.clear();
@@ -98,7 +98,7 @@ public class JarFileScanner {
         hasScanned = true;
     }
 
-    private Set<JarStateHolder> scanDirectory(File directory) {
+    private Set<JarStateHolder> scanDirectory(File directory) throws JarUnpackingException {
         var jarFiles = directory.listFiles((dir, name) -> name.endsWith(".jar") | name.endsWith(".war"));
         if (null == jarFiles) return Collections.emptySet();
 
@@ -113,23 +113,24 @@ public class JarFileScanner {
                 try (JarFile jarFile = new JarFile(innerZipperJarFile)) {
                     holder.setUnzippedDirectory(unpackJarFileToTmp(jarFile, innerZipperJarFile.getName().replace(".jar", "")));
                 } catch (IOException e) {
-                    throw new IOException("Failed to unpack jar", e);
+                    throw new JarUnpackingException("Failed to unpack Jar", e);
                 }
                 return holder;
             };
             completionService.submit(unpackFuture);
         }
 
-        int deltaReceived = Math.max(jarFiles.length - 1, 1);
+        int deltaReceived = Math.max(jarFiles.length, 1);
         try {
             while (deltaReceived > 0) {
                 Future<JarStateHolder> maybeRanFuture = completionService.take();
                 res.add(maybeRanFuture.get());
                 deltaReceived--;
             }
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error while unpacking jars", e);
-            // FIXME
+        } catch (InterruptedException e) {
+            throw new JarUnpackingException("Future was interrupted", e);
+        } catch (ExecutionException e) {
+            throw new JarUnpackingException("Future did not complete successfully", e);
         }
 
         return res;
@@ -153,7 +154,7 @@ public class JarFileScanner {
             var destFile = new File(tmpDir.toFile(), entry.getName());
             if (entry.getName().endsWith("/") && !destFile.isDirectory()) {
                 if (!destFile.mkdir()) {
-                    throw new IllegalStateException("Failed to create tmp directory: " + destFile.getAbsolutePath());
+                    throw new IOException("Failed to create tmp directory: " + destFile.getAbsolutePath());
                 }
                 logger.info("Creating directory " + destFile.getAbsolutePath());
                 continue;

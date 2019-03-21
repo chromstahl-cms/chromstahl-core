@@ -9,6 +9,7 @@ import software.kloud.KMSPluginSDK.KMSPlugin;
 import software.kloud.kmscore.plugin.PluginLoader;
 import software.kloud.kmscore.plugin.PluginManager;
 import software.kloud.kmscore.plugin.PluginRegisterException;
+import software.kloud.kmscore.plugin.jar.JarUnpackingException;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +22,12 @@ import java.util.stream.Collectors;
 @ComponentScan("software.kloud")
 public class KmsCoreApplication {
 
-    public static void main(String[] args) throws IOException, PluginRegisterException {
+    public static void main(String[] args) throws IOException, PluginRegisterException, JarUnpackingException {
         beforeSpringInit();
         SpringApplication.run(KmsCoreApplication.class, args);
     }
 
-    private static void beforeSpringInit() throws IOException, PluginRegisterException {
+    private static void beforeSpringInit() throws IOException, PluginRegisterException, JarUnpackingException {
         PluginLoader pluginLoader = new PluginLoader(new File("plugins"));
         var allClasses = pluginLoader.load();
 

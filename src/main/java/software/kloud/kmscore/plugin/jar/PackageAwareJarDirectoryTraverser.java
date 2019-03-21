@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class PackageAwareJarDirectoryTraverser {
     public static final int DEFAULT_N_THREADS = 4;
+    private static final List<String> commonJarDirectoriesNames = List.of("BOOT-INF/classes/", "META-INF/");
     private static final Logger logger = LoggerFactory.getLogger(PackageAwareJarDirectoryTraverser.class);
     private final File rootNode;
     private final CompletionService<Set<ClassFileHolder>> completionService;
@@ -95,7 +96,7 @@ public class PackageAwareJarDirectoryTraverser {
      */
     private Set<ClassFileHolder> traverseIntern(File node, Set<ClassFileHolder> foundSoFar) {
         if (node.isFile() && filterForClassFile(node)) {
-            var name = getBinrayClassNameFromFile(node);
+            var name = getBinaryClassNameFromFile(node);
             foundSoFar.add(new ClassFileHolder(node, name));
         } else if (node.isDirectory()) {
             for (File file : Objects.requireNonNull(node.listFiles())) {
@@ -105,9 +106,16 @@ public class PackageAwareJarDirectoryTraverser {
         return foundSoFar;
     }
 
-    private String getBinrayClassNameFromFile(File node) {
+    private String getBinaryClassNameFromFile(File node) {
         var abs = node.getAbsolutePath();
         abs = abs.replace(rootNode.getAbsolutePath(), "");
+
+        for (String commonJarDirectory : commonJarDirectoriesNames) {
+            if (abs.contains(commonJarDirectory)) {
+                abs = abs.replace(commonJarDirectory, "");
+            }
+        }
+
         abs = abs.replace(".class", "");
         abs = abs.replaceAll("/", ".");
         if (abs.startsWith(".")) {

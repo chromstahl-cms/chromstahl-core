@@ -1,9 +1,6 @@
 package software.kloud.kmscore.plugin;
 
-import software.kloud.kmscore.plugin.jar.ClassFileHolder;
-import software.kloud.kmscore.plugin.jar.JarFileScanner;
-import software.kloud.kmscore.plugin.jar.JarStateHolder;
-import software.kloud.kmscore.plugin.jar.PackageAwareJarDirectoryTraverser;
+import software.kloud.kmscore.plugin.jar.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +20,7 @@ public class PluginLoader extends ClassLoader {
         this.jarFileScanner.addDirectory(pluginDirectory);
     }
 
-    public List<Class<?>> load() throws IOException {
+    public List<Class<?>> load() throws IOException, JarUnpackingException {
         this.jarFileScanner.scan(JarFileScanner.ScanMode.SKIP_ALREADY_SCANNED);
         Set<JarStateHolder> foundJars = jarFileScanner.getAll();
 
@@ -49,8 +46,6 @@ public class PluginLoader extends ClassLoader {
             Class<?> clazz = this.defineClass(className, buf, 0, length);
             loadedClazzes.add(clazz);
         }
-
         return loadedClazzes;
     }
-
 }
