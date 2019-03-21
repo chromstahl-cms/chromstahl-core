@@ -1,4 +1,4 @@
-package software.kloud.kmscore.jar;
+package software.kloud.kmscore.plugin.jar;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

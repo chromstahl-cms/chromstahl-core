@@ -1,4 +1,4 @@
-package software.kloud.kmscore;
+package software.kloud.kmscore.plugin;
 
 import software.kloud.KMSPluginSDK.IKMSPlugin;
 import software.kloud.KMSPluginSDK.KMSPlugin;

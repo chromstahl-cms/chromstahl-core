@@ -1,4 +1,4 @@
-package software.kloud.kmscore;
+package software.kloud.kmscore.plugin;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;

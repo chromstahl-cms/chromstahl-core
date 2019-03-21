@@ -1,9 +1,9 @@
-package software.kloud.kmscore;
+package software.kloud.kmscore.plugin;
 
-import software.kloud.kmscore.jar.ClassFileHolder;
-import software.kloud.kmscore.jar.JarFileScanner;
-import software.kloud.kmscore.jar.JarStateHolder;
-import software.kloud.kmscore.jar.PackageAwareJarDirectoryTraverser;
+import software.kloud.kmscore.plugin.jar.ClassFileHolder;
+import software.kloud.kmscore.plugin.jar.JarFileScanner;
+import software.kloud.kmscore.plugin.jar.JarStateHolder;
+import software.kloud.kmscore.plugin.jar.PackageAwareJarDirectoryTraverser;
 
 import java.io.File;
 import java.io.FileInputStream;

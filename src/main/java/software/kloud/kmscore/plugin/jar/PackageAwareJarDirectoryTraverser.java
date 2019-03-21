@@ -1,4 +1,4 @@
-package software.kloud.kmscore.jar;
+package software.kloud.kmscore.plugin.jar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

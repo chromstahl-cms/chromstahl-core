@@ -1,4 +1,4 @@
-package software.kloud.kmscore.jar;
+package software.kloud.kmscore.plugin.jar;
 
 import java.io.File;
 import java.util.Objects;

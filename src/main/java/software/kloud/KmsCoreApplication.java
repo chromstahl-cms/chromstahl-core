@@ -6,9 +6,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import software.kloud.KMSPluginSDK.IKMSPlugin;
 import software.kloud.KMSPluginSDK.KMSPlugin;
-import software.kloud.kmscore.PluginLoader;
-import software.kloud.kmscore.PluginManager;
-import software.kloud.kmscore.PluginRegisterException;
+import software.kloud.kmscore.plugin.PluginLoader;
+import software.kloud.kmscore.plugin.PluginManager;
+import software.kloud.kmscore.plugin.PluginRegisterException;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
 public class KmsCoreApplication {
 
     public static void main(String[] args) throws IOException, PluginRegisterException {
+        beforeSpringInit();
+        SpringApplication.run(KmsCoreApplication.class, args);
+    }
+
+    private static void beforeSpringInit() throws IOException, PluginRegisterException {
         PluginLoader pluginLoader = new PluginLoader(new File("plugins"));
         var allClasses = pluginLoader.load();
 
@@ -40,7 +45,6 @@ public class KmsCoreApplication {
         for (PluginManager.PluginHolder pluginHolder : pluginManager.getPluginsSet()) {
             pluginHolder.plugin.init();
         }
-        SpringApplication.run(KmsCoreApplication.class, args);
     }
 
     public static class LoadedClassesHolder {
