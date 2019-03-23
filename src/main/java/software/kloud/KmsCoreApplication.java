@@ -10,9 +10,11 @@ import software.kloud.kmscore.plugin.PluginLoader;
 import software.kloud.kmscore.plugin.PluginManager;
 import software.kloud.kmscore.plugin.PluginRegisterException;
 import software.kloud.kmscore.plugin.jar.JarUnpackingException;
+import software.kloud.kmscore.util.FileHasher;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,12 +24,13 @@ import java.util.stream.Collectors;
 @ComponentScan("software.kloud")
 public class KmsCoreApplication {
 
-    public static void main(String[] args) throws IOException, PluginRegisterException, JarUnpackingException {
+    public static void main(String[] args) throws IOException, PluginRegisterException, JarUnpackingException, NoSuchAlgorithmException {
         beforeSpringInit();
         SpringApplication.run(KmsCoreApplication.class, args);
     }
 
-    private static void beforeSpringInit() throws IOException, PluginRegisterException, JarUnpackingException {
+    private static void beforeSpringInit() throws IOException, PluginRegisterException, JarUnpackingException, NoSuchAlgorithmException {
+        FileHasher.init();
         PluginLoader pluginLoader = new PluginLoader(new File("plugins"));
         var allClasses = pluginLoader.load();
 

@@ -5,6 +5,7 @@ import java.io.File;
 @SuppressWarnings("WeakerAccess")
 public class JarStateHolder {
     private File zippedJarFile;
+    private String jarFileHash;
     private File unzippedDirectory;
 
     public JarStateHolder() {
@@ -19,16 +20,16 @@ public class JarStateHolder {
         return zippedJarFile;
     }
 
+    public void setZippedJarFile(File zippedJarFile) {
+        this.zippedJarFile = zippedJarFile;
+    }
+
     public File getUnzippedDirectory() {
         return unzippedDirectory;
     }
 
     public void setUnzippedDirectory(File directory) {
         this.unzippedDirectory = directory;
-    }
-
-    public void setZippedJarFile(File zippedJarFile) {
-        this.zippedJarFile = zippedJarFile;
     }
 
     @Override
@@ -42,5 +43,13 @@ public class JarStateHolder {
 
         return this.zippedJarFile.equals(other.zippedJarFile)
                 && this.unzippedDirectory.equals(other.unzippedDirectory);
+    }
+
+    public String getJarFileHash() {
+        return jarFileHash;
+    }
+
+    public void setJarFileHash(String jarFileHash) {
+        this.jarFileHash = jarFileHash;
     }
 }

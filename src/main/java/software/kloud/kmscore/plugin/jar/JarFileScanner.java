@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.kloud.kmscore.util.FileHasher;
 import software.kloud.kmscore.util.LocalDiskStorage;
 
 import java.io.File;
@@ -25,15 +26,15 @@ public class JarFileScanner {
     private static int DEFAULT_THREAD_COUNT = 4;
     private final List<File> pluginDirectories;
     private final CompletionService<JarStateHolder> completionService;
-    private List<File> scannedDirectories;
     private Map<File, Set<JarStateHolder>> jarFileTmpMap;
+    private Map<File, FileHasher> jarFileHasherMap;
     private boolean hasScanned = false;
 
 
     public JarFileScanner(int threadCount) throws IOException {
         this.jarFileTmpMap = new HashMap<>();
+        this.jarFileHasherMap = new HashMap<>();
         this.pluginDirectories = new ArrayList<>();
-        this.scannedDirectories = new ArrayList<>();
         this.completionService = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threadCount));
         this.init();
     }
@@ -51,9 +52,7 @@ public class JarFileScanner {
             return;
         }
         if (CACHE_FILE.length() == 0) return;
-        Map<File, Set<JarStateHolder>> readMap = objm.readValue(CACHE_FILE, CACHE_TYPE);
-        this.jarFileTmpMap = readMap;
-        this.scannedDirectories = new ArrayList<>(readMap.keySet());
+        this.jarFileTmpMap = objm.readValue(CACHE_FILE, CACHE_TYPE);
     }
 
     private void writeCacheToDisk() throws IOException {
@@ -78,18 +77,12 @@ public class JarFileScanner {
     public void scan(ScanMode scanMode) throws JarUnpackingException, IOException {
         try {
             if (scanMode == ScanMode.FORCE) {
-                scannedDirectories.clear();
                 jarFileTmpMap.clear();
             }
 
             for (File pluginDirectory : pluginDirectories) {
-                if (scannedDirectories.contains(pluginDirectory)) {
-                    logger.info("Skipping scan directory " + pluginDirectory.getAbsolutePath());
-                    continue;
-                }
-
-                jarFileTmpMap.put(pluginDirectory, scanDirectory(pluginDirectory));
-                scannedDirectories.add(pluginDirectory);
+                Set<JarStateHolder> scanResult = scanDirectory(pluginDirectory);
+                jarFileTmpMap.put(pluginDirectory, scanResult);
             }
         } finally {
             this.writeCacheToDisk();
@@ -98,13 +91,29 @@ public class JarFileScanner {
         hasScanned = true;
     }
 
-    private Set<JarStateHolder> scanDirectory(File directory) throws JarUnpackingException {
+    private Set<JarStateHolder> scanDirectory(File directory) throws JarUnpackingException, IOException {
         var jarFiles = directory.listFiles((dir, name) -> name.endsWith(".jar") | name.endsWith(".war"));
         if (null == jarFiles) return Collections.emptySet();
 
         var res = new HashSet<JarStateHolder>();
+        int futuresSpawned = 0;
         for (File zippedJarFile : jarFiles) {
             if (!zippedJarFile.isFile()) continue;
+
+            var hasher = new FileHasher(zippedJarFile);
+            var hash = hasher.hashMD5();
+
+            var hasAlreadyScanned = this.getAllScannedJars()
+                    .filter(j -> j.getJarFileHash() != null)
+                    .anyMatch(j -> j.getJarFileHash().equals(hash));
+
+            if (hasAlreadyScanned) {
+                logger.info(String.format(
+                        "Skipping file %s. Hasn't changed since last scan. Use ScanMode.FORCE to force"
+                        , zippedJarFile.getAbsolutePath())
+                );
+                continue;
+            }
 
             Callable<JarStateHolder> unpackFuture = () -> {
                 File innerZipperJarFile = new File(zippedJarFile.getAbsolutePath());
@@ -112,15 +121,17 @@ public class JarFileScanner {
                 res.add(holder);
                 try (JarFile jarFile = new JarFile(innerZipperJarFile)) {
                     holder.setUnzippedDirectory(unpackJarFileToTmp(jarFile, innerZipperJarFile.getName().replace(".jar", "")));
+                    holder.setJarFileHash(hash);
                 } catch (IOException e) {
                     throw new JarUnpackingException("Failed to unpack Jar", e);
                 }
                 return holder;
             };
             completionService.submit(unpackFuture);
+            futuresSpawned++;
         }
 
-        int deltaReceived = Math.max(jarFiles.length, 1);
+        int deltaReceived = futuresSpawned;
         try {
             while (deltaReceived > 0) {
                 Future<JarStateHolder> maybeRanFuture = completionService.take();
@@ -192,11 +203,25 @@ public class JarFileScanner {
             throw new IllegalStateException("Hasn't scanned yet");
     }
 
+    private Set<JarStateHolder> getAllScannedJarForDirectory(File directory) {
+        var found = this.jarFileTmpMap.get(directory);
+
+        if (found == null) return Collections.emptySet();
+
+        return found;
+    }
+
+    private Stream<JarStateHolder> getAllScannedJars() {
+        return this.jarFileTmpMap
+                .values()
+                .stream()
+                .flatMap(Set::stream);
+    }
+
     public enum ScanMode {
         SKIP_ALREADY_SCANNED,
         FORCE;
     }
-
 
     /**
      * Sole reason for this class it use it as a type token when reading / writing to cache.
