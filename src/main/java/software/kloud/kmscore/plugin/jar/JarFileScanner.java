@@ -36,6 +36,8 @@ public class JarFileScanner {
     private boolean initialized = false;
 
     // DEBUG fields
+    // Not part of public API
+    // Override this class in a test and call setDebug() to start recording these metrics
     private boolean debug = false;
     private AtomicInteger debugCountOfUnpackedJarEntries = new AtomicInteger(0);
     private AtomicInteger debugCountOfUnpackedJarFiles = new AtomicInteger(0);
@@ -287,6 +289,8 @@ public class JarFileScanner {
     }
 
     // DEBUG methods
+    // Not part of public API
+    // Override this class in a test and call setDebug() to start recording these metrics
 
     protected void setDebug() {
         this.debug = true;
