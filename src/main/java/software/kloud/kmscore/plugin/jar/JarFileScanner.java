@@ -5,14 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.kloud.kmscore.util.FileHasher;
+import software.kloud.kmscore.util.FileHashingUtil;
 import software.kloud.kmscore.util.LocalDiskStorage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -20,7 +24,6 @@ import java.util.stream.Stream;
 
 public class JarFileScanner {
     private static final Logger logger = LoggerFactory.getLogger(JarFileScanner.class);
-    private static final File CACHE_FILE = new File(LocalDiskStorage.getStaticRoot(), "plugins.cache");
     private static final CacheTypeReference CACHE_TYPE = new CacheTypeReference();
     private static final ObjectMapper objm = new ObjectMapper();
     private static int DEFAULT_THREAD_COUNT = 4;
@@ -29,40 +32,58 @@ public class JarFileScanner {
     private Map<File, Set<JarStateHolder>> jarFileTmpMap;
     private Map<File, FileHasher> jarFileHasherMap;
     private boolean hasScanned = false;
+    private Supplier<File> baseDirectory = LocalDiskStorage::getStaticRoot;
+    private boolean initialized = false;
 
+    // DEBUG fields
+    private boolean debug = false;
+    private AtomicInteger debugCountOfUnpackedJarEntries = new AtomicInteger(0);
+    private AtomicInteger debugCountOfUnpackedJarFiles = new AtomicInteger(0);
+    private AtomicInteger debugCountOfSkippedJarEntries = new AtomicInteger(0);
+    private AtomicInteger debugCountOfSkippedJarFiles = new AtomicInteger(0);
 
     public JarFileScanner(int threadCount) throws IOException {
         this.jarFileTmpMap = new HashMap<>();
         this.jarFileHasherMap = new HashMap<>();
         this.pluginDirectories = new ArrayList<>();
         this.completionService = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threadCount));
-        this.init();
     }
 
     public JarFileScanner() throws IOException {
         this(DEFAULT_THREAD_COUNT);
     }
 
-    private void init() throws IOException {
-        if (!CACHE_FILE.isFile()) {
-            if (!CACHE_FILE.createNewFile()) {
+    private File getCacheFile() {
+        return new File(this.baseDirectory.get(), "plugins.cache");
+    }
+
+    public void init() throws IOException {
+        File cacheFile = getCacheFile();
+        if (!cacheFile.isFile()) {
+            if (!cacheFile.createNewFile()) {
                 logger.error("Could not create fresh cache file. Filesystem corrupt or not enough permissions?");
                 throw new IOException("Could not create fresh cache file. Filesystem corrupt or not enough permissions?");
             }
+            initialized = true;
             return;
         }
-        if (CACHE_FILE.length() == 0) return;
-        this.jarFileTmpMap = objm.readValue(CACHE_FILE, CACHE_TYPE);
+        if (cacheFile.length() == 0) {
+            initialized = true;
+            return;
+        }
+        this.jarFileTmpMap = objm.readValue(cacheFile, CACHE_TYPE);
+        initialized = true;
     }
 
     private void writeCacheToDisk() throws IOException {
-        if (!CACHE_FILE.isFile()) {
-            if (!CACHE_FILE.createNewFile()) {
+        File cacheFile = getCacheFile();
+        if (!cacheFile.isFile()) {
+            if (!cacheFile.createNewFile()) {
                 logger.error("Could not create fresh cache file. Filesystem corrupt or not enough permissions?");
                 throw new IOException("Could not create fresh cache file. Filesystem corrupt or not enough permissions?");
             }
         }
-        objm.writeValue(CACHE_FILE, this.jarFileTmpMap);
+        objm.writeValue(cacheFile, this.jarFileTmpMap);
     }
 
     public void addDirectory(File directory) {
@@ -73,8 +94,14 @@ public class JarFileScanner {
         pluginDirectories.add(directory);
     }
 
+    public void setUnpackingBaseDir(File baseDir) {
+        this.baseDirectory = () -> baseDir;
+    }
 
     public void scan(ScanMode scanMode) throws JarUnpackingException, IOException {
+        if (!initialized) {
+            throw new IllegalStateException("Scanner is not initialized, call init() first!");
+        }
         try {
             if (scanMode == ScanMode.FORCE) {
                 jarFileTmpMap.clear();
@@ -112,15 +139,21 @@ public class JarFileScanner {
                         "Skipping file %s. Hasn't changed since last scan. Use ScanMode.FORCE to force"
                         , zippedJarFile.getAbsolutePath())
                 );
+                if (debug) debugCountOfSkippedJarFiles.incrementAndGet();
+
                 continue;
             }
 
             Callable<JarStateHolder> unpackFuture = () -> {
+                if (debug) debugCountOfUnpackedJarFiles.incrementAndGet();
+
                 File innerZipperJarFile = new File(zippedJarFile.getAbsolutePath());
                 var holder = new JarStateHolder(innerZipperJarFile);
                 res.add(holder);
                 try (JarFile jarFile = new JarFile(innerZipperJarFile)) {
-                    holder.setUnzippedDirectory(unpackJarFileToTmp(jarFile, innerZipperJarFile.getName().replace(".jar", "")));
+                    String cleanJarFileName = innerZipperJarFile.getName().replace(".jar", "");
+                    File unzippedDirectory = unpackJarFileToDiskStorage(jarFile, cleanJarFileName);
+                    holder.setUnzippedDirectory(unzippedDirectory);
                     holder.setJarFileHash(hash);
                 } catch (IOException e) {
                     throw new JarUnpackingException("Failed to unpack Jar", e);
@@ -148,29 +181,39 @@ public class JarFileScanner {
     }
 
     /**
-     * Unpacks a jar into a temporary directory. Returns temporary directory for further processing
+     * Unpacks a jar into a directory under the KMS-Store (see {@link LocalDiskStorage}). Returns directory for further processing
      * Runs in its own future
      *
      * @param jarfile JarFile to unpack
-     * @return Temporary directory in which the jarFile was unpacked
+     * @return Directory in which the jarFile was unpacked
      * @throws IOException If not able to unpack jar
      */
-    private File unpackJarFileToTmp(JarFile jarfile, String name) throws IOException {
-        var tmpDir = Files.createDirectory(new File(LocalDiskStorage.getStaticRoot(), String.format("KMS-Plugin-%s", name)).toPath());
+    private File unpackJarFileToDiskStorage(JarFile jarfile, String name) throws IOException {
+        var tmpDir = Files.createDirectory(new File(this.baseDirectory.get(), String.format("KMS-Plugin-%s", name)).toPath());
 
         Iterator<JarEntry> entryIterator = jarfile.entries().asIterator();
 
         while (entryIterator.hasNext()) {
             var entry = entryIterator.next();
             var destFile = new File(tmpDir.toFile(), entry.getName());
+            final String destFilePath = destFile.getAbsolutePath();
             if (entry.getName().endsWith("/") && !destFile.isDirectory()) {
                 if (!destFile.mkdir()) {
-                    throw new IOException("Failed to create tmp directory: " + destFile.getAbsolutePath());
+                    throw new IOException(String.format("Failed to create tmp directory: %s", destFilePath));
                 }
-                logger.info("Creating directory " + destFile.getAbsolutePath());
+                logger.info(String.format("Creating directory %s", destFilePath));
                 continue;
             }
-            logger.info("Unzipping file " + destFile.getAbsolutePath());
+
+            if (destFile.isFile() && compareJarEntryWithOsFile(jarfile, entry, destFile)) {
+                logger.info(String.format("Skipping file %s", destFilePath));
+                if (debug) debugCountOfSkippedJarEntries.incrementAndGet();
+                continue;
+            }
+
+            if (debug) debugCountOfUnpackedJarEntries.incrementAndGet();
+
+            logger.info(String.format("Unzipping file %s", destFilePath));
             try (var is = jarfile.getInputStream(entry)) {
                 try (var fout = new FileOutputStream(destFile)) {
                     while (is.available() > 0) {
@@ -218,6 +261,18 @@ public class JarFileScanner {
                 .flatMap(Set::stream);
     }
 
+    private boolean compareJarEntryWithOsFile(JarFile jarfile, JarEntry entry, File osFile) throws IOException {
+        try (var jarIs = jarfile.getInputStream(entry)) {
+            try (var fis = new FileInputStream(osFile)) {
+                if (FileHashingUtil.compareHashes(jarIs, fis)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public enum ScanMode {
         SKIP_ALREADY_SCANNED,
         FORCE;
@@ -229,5 +284,39 @@ public class JarFileScanner {
      */
     private static final class CacheTypeReference extends TypeReference<Map<File, Set<JarStateHolder>>> {
 
+    }
+
+    // DEBUG methods
+
+    protected void setDebug() {
+        this.debug = true;
+    }
+
+    protected DebugHolder getDebugInfo() {
+        return new DebugHolder(
+                debugCountOfUnpackedJarEntries.get(),
+                debugCountOfUnpackedJarFiles.get(),
+                debugCountOfSkippedJarEntries.get(),
+                debugCountOfSkippedJarFiles.get()
+        );
+    }
+
+    protected static final class DebugHolder {
+        public final int countOfUnpackedJarEntries;
+        public final int countOfUnpackedJarFiles;
+        public final int countOfSkippedJarEntries;
+        public final int countOfSkippedJarFiles;
+
+        public DebugHolder(
+                int countOfUnpackedJarEntries,
+                int countOfUnpackedJarFiles,
+                int countOfSkippedJarEntries,
+                int countOfSkippedJarFiles
+        ) {
+            this.countOfUnpackedJarEntries = countOfUnpackedJarEntries;
+            this.countOfUnpackedJarFiles = countOfUnpackedJarFiles;
+            this.countOfSkippedJarEntries = countOfSkippedJarEntries;
+            this.countOfSkippedJarFiles = countOfSkippedJarFiles;
+        }
     }
 }

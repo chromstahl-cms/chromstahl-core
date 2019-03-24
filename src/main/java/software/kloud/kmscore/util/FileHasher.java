@@ -13,11 +13,19 @@ import java.util.Optional;
 public class FileHasher {
     private static final int DEFAULT_BUF_SIZE = 2048;
     private static MessageDigest MD5_MD;
+    private InputStream is;
     private File fd;
     private String lastDigest;
+    private final Mode mode;
 
     public FileHasher(File fd) {
         this.fd = fd;
+        this.mode = Mode.FILE;
+    }
+
+    public FileHasher(InputStream is) {
+        this.is = is;
+        this.mode = Mode.STREAM;
     }
 
     public static void init() throws NoSuchAlgorithmException {
@@ -25,6 +33,10 @@ public class FileHasher {
     }
 
     public String hashMD5() throws IOException {
+        if (mode == Mode.STREAM) {
+            return this.getDigest(is, MD5_MD);
+        }
+
         try (var fin = new FileInputStream(this.fd)) {
             return this.getDigest(fin, MD5_MD);
         }
@@ -46,5 +58,10 @@ public class FileHasher {
         var res = new String(Hex.encodeHex(digest));
         lastDigest = res;
         return res;
+    }
+
+    private enum Mode {
+        FILE,
+        STREAM
     }
 }

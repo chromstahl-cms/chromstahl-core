@@ -17,6 +17,7 @@ public class PluginLoader extends ClassLoader {
     public PluginLoader(File pluginDirectory) throws IOException {
         assert pluginDirectory.isDirectory();
         this.jarFileScanner = new JarFileScanner();
+        jarFileScanner.init();
         this.jarFileScanner.addDirectory(pluginDirectory);
     }
 
