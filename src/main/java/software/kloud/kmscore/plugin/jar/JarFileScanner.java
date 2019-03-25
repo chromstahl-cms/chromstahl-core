@@ -146,7 +146,10 @@ public class JarFileScanner {
                         , zippedJarFile.getAbsolutePath())
                 );
                 if (debug) debugCountOfSkippedJarFiles.incrementAndGet();
-
+                this.getAllScannedJars()
+                        .filter(j -> j.getJarFileHash().equals(hash))
+                        .findFirst()
+                        .ifPresent(res::add);
                 continue;
             } else if (hasAlreadyScannedByName) {
                 Optional<File> unzippedDirectory = this.getAllScannedJars()
