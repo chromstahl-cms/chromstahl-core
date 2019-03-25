@@ -2,6 +2,7 @@ package software.kloud.kmscore.plugin.jar;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.kloud.kmscore.util.FileHasher;
@@ -132,11 +133,14 @@ public class JarFileScanner {
             var hasher = new FileHasher(zippedJarFile);
             var hash = hasher.hashMD5();
 
-            var hasAlreadyScanned = this.getAllScannedJars()
+            var hasAlreadyScannedByName = this.getAllScannedJars()
+                    .anyMatch(j -> j.getZippedJarFile().getName().equals(zippedJarFile.getName()));
+
+            var hasAlreadyScannedByHash = this.getAllScannedJars()
                     .filter(j -> j.getJarFileHash() != null)
                     .anyMatch(j -> j.getJarFileHash().equals(hash));
 
-            if (hasAlreadyScanned) {
+            if (hasAlreadyScannedByHash && hasAlreadyScannedByName) {
                 logger.info(String.format(
                         "Skipping file %s. Hasn't changed since last scan. Use ScanMode.FORCE to force"
                         , zippedJarFile.getAbsolutePath())
@@ -144,6 +148,18 @@ public class JarFileScanner {
                 if (debug) debugCountOfSkippedJarFiles.incrementAndGet();
 
                 continue;
+            } else if (hasAlreadyScannedByName) {
+                Optional<File> unzippedDirectory = this.getAllScannedJars()
+                        .filter(j -> j.getZippedJarFile().getName().equals(zippedJarFile.getName()))
+                        .findFirst()
+                        .map(JarStateHolder::getUnzippedDirectory);
+
+                if (unzippedDirectory.isPresent()) {
+                    FileUtils.cleanDirectory(unzippedDirectory.get());
+                    if (!unzippedDirectory.get().delete()) {
+                        throw new IOException("Could not delete old unzipped directory. Check filesystem");
+                    }
+                }
             }
 
             Callable<JarStateHolder> unpackFuture = () -> {
@@ -207,12 +223,6 @@ public class JarFileScanner {
                 continue;
             }
 
-            if (destFile.isFile() && compareJarEntryWithOsFile(jarfile, entry, destFile)) {
-                logger.info(String.format("Skipping file %s", destFilePath));
-                if (debug) debugCountOfSkippedJarEntries.incrementAndGet();
-                continue;
-            }
-
             if (debug) debugCountOfUnpackedJarEntries.incrementAndGet();
 
             logger.info(String.format("Unzipping file %s", destFilePath));
@@ -263,25 +273,13 @@ public class JarFileScanner {
                 .flatMap(Set::stream);
     }
 
-    private boolean compareJarEntryWithOsFile(JarFile jarfile, JarEntry entry, File osFile) throws IOException {
-        try (var jarIs = jarfile.getInputStream(entry)) {
-            try (var fis = new FileInputStream(osFile)) {
-                if (FileHashingUtil.compareHashes(jarIs, fis)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     public enum ScanMode {
         SKIP_ALREADY_SCANNED,
         FORCE;
     }
 
     /**
-     * Sole reason for this class it use it as a type token when reading / writing to cache.
+     * Sole reason for this class is use it as a type token when reading / writing to cache.
      * Using {@link TypeReference} inline leads to weird autoformatting with Intellij :(
      */
     private static final class CacheTypeReference extends TypeReference<Map<File, Set<JarStateHolder>>> {
@@ -292,26 +290,27 @@ public class JarFileScanner {
     // Not part of public API
     // Override this class in a test and call setDebug() to start recording these metrics
 
-    protected void setDebug() {
+    void setDebug() {
         this.debug = true;
     }
 
-    protected DebugHolder getDebugInfo() {
+    DebugHolder getDebugInfo() {
         return new DebugHolder(
                 debugCountOfUnpackedJarEntries.get(),
                 debugCountOfUnpackedJarFiles.get(),
                 debugCountOfSkippedJarEntries.get(),
                 debugCountOfSkippedJarFiles.get()
+
         );
     }
 
     protected static final class DebugHolder {
-        public final int countOfUnpackedJarEntries;
-        public final int countOfUnpackedJarFiles;
-        public final int countOfSkippedJarEntries;
-        public final int countOfSkippedJarFiles;
+        final int countOfUnpackedJarEntries;
+        final int countOfUnpackedJarFiles;
+        final int countOfSkippedJarEntries;
+        final int countOfSkippedJarFiles;
 
-        public DebugHolder(
+        DebugHolder(
                 int countOfUnpackedJarEntries,
                 int countOfUnpackedJarFiles,
                 int countOfSkippedJarEntries,
