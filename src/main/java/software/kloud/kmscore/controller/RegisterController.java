@@ -2,6 +2,7 @@ package software.kloud.kmscore.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +34,7 @@ public class RegisterController extends AbsController {
 
         user.setUserName(registerDTO.getUserName());
         user.setEmail(registerDTO.geteMail());
-        user.setPassword(registerDTO.getPassword());
+        user.setPassword(BCrypt.hashpw(registerDTO.getPassword(), BCrypt.gensalt()));
 
         if (checkForViolations(respDTO, user)) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(respDTO);
