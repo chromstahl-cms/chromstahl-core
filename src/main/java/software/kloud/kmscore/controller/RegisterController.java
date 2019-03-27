@@ -8,28 +8,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import software.kloud.kms.entities.UserJpaRecord;
 import software.kloud.kms.repositories.UserRepository;
 import software.kloud.kmscore.dto.RegisterDTO;
+import software.kloud.kmscore.dto.RegisterResponseDTO;
 import software.kloud.kmscore.util.TokenFactory;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-import java.util.Set;
-
 @Controller
-public class RegisterController {
-    private final static ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    private final UserRepository userRepository;
+public class RegisterController extends AbsController {
     private final TokenFactory tokenFactory;
+    private final UserRepository userRepository;
 
-    public RegisterController(UserRepository userRepository, TokenFactory tokenFactory) {
-        this.userRepository = userRepository;
+    public RegisterController(TokenFactory tokenFactory, UserRepository userRepository) {
         this.tokenFactory = tokenFactory;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> store(@RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<RegisterResponseDTO> store(@RequestBody RegisterDTO registerDTO) {
+        var respDTO = new RegisterResponseDTO();
+
         if (userRepository.findByUserName(registerDTO.getUserName()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Username already taken");
+            respDTO.addRequestError("userName", "userName already taken");
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(respDTO);
         }
         var user = new UserJpaRecord();
 
@@ -37,14 +35,12 @@ public class RegisterController {
         user.setEmail(registerDTO.geteMail());
         user.setPassword(registerDTO.getPassword());
 
-        Set<ConstraintViolation<UserJpaRecord>> violations = factory.getValidator().validate(user);
-
-        if (!violations.isEmpty()) {
-            // TODO: Figure out a way to return wrong fields to client
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        if (checkForViolations(respDTO, user)) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(respDTO);
         }
 
         var token = tokenFactory.generateToken(user);
-        return ResponseEntity.ok(token.getToken());
+        respDTO.setToken(token.getToken());
+        return ResponseEntity.ok(respDTO);
     }
 }
