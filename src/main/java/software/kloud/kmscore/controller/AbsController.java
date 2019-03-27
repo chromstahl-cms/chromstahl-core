@@ -1,6 +1,6 @@
 package software.kloud.kmscore.controller;
 
-import software.kloud.kmscore.dto.RegisterResponseDTO;
+import software.kloud.kmscore.dto.TokenResponseDTO;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -10,7 +10,7 @@ import java.util.Set;
 public class AbsController {
     private final static ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 
-    <T> boolean checkForViolations(RegisterResponseDTO respDTO, T entity) {
+    <T> boolean checkForViolations(TokenResponseDTO respDTO, T entity) {
         Set<ConstraintViolation<T>> violations = factory.getValidator().validate(entity);
         if (!violations.isEmpty()) {
             violations.forEach(respDTO::addRequestError);

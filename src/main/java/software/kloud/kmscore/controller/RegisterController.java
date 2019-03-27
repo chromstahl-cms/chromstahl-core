@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import software.kloud.kms.entities.UserJpaRecord;
 import software.kloud.kms.repositories.UserRepository;
 import software.kloud.kmscore.dto.RegisterDTO;
-import software.kloud.kmscore.dto.RegisterResponseDTO;
+import software.kloud.kmscore.dto.TokenResponseDTO;
 import software.kloud.kmscore.util.TokenFactory;
 
 @Controller
@@ -22,8 +22,8 @@ public class RegisterController extends AbsController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> store(@RequestBody RegisterDTO registerDTO) {
-        var respDTO = new RegisterResponseDTO();
+    public ResponseEntity<TokenResponseDTO> store(@RequestBody RegisterDTO registerDTO) {
+        var respDTO = new TokenResponseDTO();
 
         if (userRepository.findByUserName(registerDTO.getUserName()).isPresent()) {
             respDTO.addRequestError("userName", "userName already taken");

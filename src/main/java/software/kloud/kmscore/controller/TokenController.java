@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import software.kloud.kms.entities.UserJpaRecord;
 import software.kloud.kms.repositories.UserRepository;
 import software.kloud.kmscore.dto.TokenAuthDTO;
+import software.kloud.kmscore.dto.TokenResponseDTO;
 import software.kloud.kmscore.util.TokenFactory;
 
 @Controller
@@ -25,13 +26,14 @@ public class TokenController {
     }
 
     @PostMapping
-    public ResponseEntity<String> store(@RequestBody TokenAuthDTO authDTO) {
+    public ResponseEntity<TokenResponseDTO> store(@RequestBody TokenAuthDTO authDTO) {
         UserJpaRecord users = userRepository
                 .findByUserName(authDTO.getUserName())
                 .orElseThrow(SecurityException::new);
 
         if (BCrypt.checkpw(authDTO.getPassword(), users.getPassword())) {
-            return ResponseEntity.ok(this.tokenFactory.generateToken(users).getToken());
+            String token = this.tokenFactory.generateToken(users).getToken();
+            return ResponseEntity.ok(new TokenResponseDTO(token));
         }
 
         throw new SecurityException();

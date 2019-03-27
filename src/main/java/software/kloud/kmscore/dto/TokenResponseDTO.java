@@ -1,9 +1,13 @@
 package software.kloud.kmscore.dto;
 
-public class RegisterResponseDTO extends AbstractResponseDTO {
+public class TokenResponseDTO extends AbstractResponseDTO {
     private String token;
 
-    public RegisterResponseDTO() {
+    public TokenResponseDTO() {
+    }
+
+    public TokenResponseDTO(String token) {
+        this.token = token;
     }
 
     public void setToken(String token) {
