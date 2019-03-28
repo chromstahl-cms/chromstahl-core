@@ -6,16 +6,17 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import software.kloud.KMSPluginSDK.IKMSPlugin;
 import software.kloud.KMSPluginSDK.KMSPlugin;
-import software.kloud.kmscore.plugin.PluginLoader;
+import software.kloud.classery.jar.JarUnpackingException;
+import software.kloud.classery.loader.ClasseryLoader;
 import software.kloud.kmscore.plugin.PluginManager;
 import software.kloud.kmscore.plugin.PluginRegisterException;
-import software.kloud.kmscore.plugin.jar.JarUnpackingException;
-import software.kloud.kmscore.util.FileHasher;
+import software.kloud.kmscore.util.LocalDiskStorage;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +31,9 @@ public class KmsCoreApplication {
     }
 
     private static void beforeSpringInit() throws IOException, PluginRegisterException, JarUnpackingException, NoSuchAlgorithmException {
-        FileHasher.init();
-        PluginLoader pluginLoader = new PluginLoader(new File("plugins"));
-        var allClasses = pluginLoader.load();
+        var loader = new ClasseryLoader(
+                LocalDiskStorage.getStaticRoot(), Collections.singletonList(new File("plugins/")));
+        var allClasses = loader.load();
 
         LoadedClassesHolder.getInstance().addClasses(allClasses);
         PluginManager pluginManager = new PluginManager();

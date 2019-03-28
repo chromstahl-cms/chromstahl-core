@@ -32,7 +32,8 @@ public class PluginBeanRegistry {
 
     private static boolean checkIfClassIsSpringStereotype(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredAnnotations())
-                .anyMatch(a -> springAnnotations.contains(a.getClass()));
+                .map(Annotation::annotationType)
+                .anyMatch(a -> springAnnotations.contains(a));
     }
 
     @Bean
@@ -41,7 +42,7 @@ public class PluginBeanRegistry {
             @Override
             public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
                 for (Class<?> clazz : KmsCoreApplication.LoadedClassesHolder.getInstance().getAll()) {
-                    if (checkIfClassIsSpringStereotype(clazz)) {
+                    if (!checkIfClassIsSpringStereotype(clazz)) {
                         continue;
                     }
                     AnnotatedBeanDefinition def = new AnnotatedGenericBeanDefinition(clazz);
