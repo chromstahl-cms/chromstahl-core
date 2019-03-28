@@ -56,7 +56,7 @@ public class TokenFactory {
             silver.save(userJpaRecord);
         } catch (IOException e) {
             logger.error("Could not save to silver! Check connection and Silver status", e);
-            tokenRepository.save(token);
+            //tokenRepository.save(token);
             userRepository.save(userJpaRecord);
             e.printStackTrace();
         }
