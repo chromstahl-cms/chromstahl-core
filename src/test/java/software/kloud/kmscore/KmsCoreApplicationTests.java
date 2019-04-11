@@ -9,14 +9,6 @@ import software.kloud.KmsCoreApplication;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class KmsCoreApplicationTests {
-    static {
-        instance = KmsCoreApplication.LoadedClassesHolder.getInstance();
-
-    }
-
-    private static KmsCoreApplication.LoadedClassesHolder instance;
-
-
     @Test
     public void contextLoads() {
     }
