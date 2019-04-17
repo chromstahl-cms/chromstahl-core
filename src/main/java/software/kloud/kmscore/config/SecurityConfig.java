@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +19,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true,
+        jsr250Enabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationTokenFilter filter;
     private final UserDetailsServiceImpl userService;
@@ -35,10 +40,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/token").permitAll()
                 .antMatchers(HttpMethod.POST, "/register").permitAll()
                 .antMatchers(HttpMethod.GET, "/watchdog/").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/accountInfo/verifyEmail").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/signup").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/signup").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and()
                 .csrf().disable()

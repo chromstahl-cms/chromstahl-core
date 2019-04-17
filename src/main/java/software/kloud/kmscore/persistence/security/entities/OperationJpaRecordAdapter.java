@@ -6,11 +6,15 @@ import software.kloud.kms.entities.OperationJpaRecord;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Entity
-@Table(name = "operation")
-public class OperationJpaRecordAdapter extends OperationJpaRecord implements GrantedAuthority {
+public class OperationJpaRecordAdapter implements GrantedAuthority {
+    private final OperationJpaRecord record;
+
+    public OperationJpaRecordAdapter(OperationJpaRecord record) {
+        this.record = record;
+    }
+
     @Override
     public String getAuthority() {
-        return super.getId();
+        return record.getId();
     }
 }

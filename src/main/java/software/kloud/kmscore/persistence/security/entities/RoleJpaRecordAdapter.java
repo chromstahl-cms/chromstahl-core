@@ -7,14 +7,15 @@ import software.kloud.kms.entities.RoleJpaRecord;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RoleJpaRecordAdapter extends RoleJpaRecord implements GrantedAuthority {
-    @Override
-    public String getAuthority() {
-        return super.getId();
+public class RoleJpaRecordAdapter implements GrantedAuthority {
+    private final RoleJpaRecord record;
+
+    public RoleJpaRecordAdapter(RoleJpaRecord record) {
+        this.record = record;
     }
 
     @Override
-    public List<OperationJpaRecord> getAllowedOperations() {
-        return super.getAllowedOperations().stream().map(it -> (OperationJpaRecordAdapter) it).collect(Collectors.toList());
+    public String getAuthority() {
+        return record.getId();
     }
 }

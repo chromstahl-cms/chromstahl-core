@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.findByUserName(username)
                 .map(user -> new User(user.getUserName(), user.getPassword(), user.getRoleJpaRecords()
                         .stream()
-                        .map(it -> (RoleJpaRecordAdapter) it)
+                        .map(RoleJpaRecordAdapter::new)
                         .collect(Collectors.toList())))
                 .orElseThrow(() -> new UsernameNotFoundException("user not found"));
     }
