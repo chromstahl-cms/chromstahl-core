@@ -9,9 +9,7 @@ import software.kloud.kms.entities.TokenJpaRecord;
 import software.kloud.kms.entities.UserJpaRecord;
 import software.kloud.kms.repositories.TokenRepository;
 import software.kloud.kms.repositories.UserRepository;
-import software.kloud.silver.client.CommunicationClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,11 +20,9 @@ public class TokenFactory {
 
     private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
-    private final CommunicationClient silver;
 
     @Autowired
-    public TokenFactory(TokenRepository tokenRepository, UserRepository userRepository, CommunicationClient silver) {
-        this.silver = silver;
+    public TokenFactory(TokenRepository tokenRepository, UserRepository userRepository) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
     }
@@ -51,16 +47,8 @@ public class TokenFactory {
 
         userJpaRecord.getTokens().add(token);
 
-        // TODO reliably handle this.
-        try {
-            silver.save(userJpaRecord);
-        } catch (IOException e) {
-            logger.error("Could not save to silver! Check connection and Silver status", e);
-            //tokenRepository.save(token);
-            userRepository.save(userJpaRecord);
-            e.printStackTrace();
-        }
-
+        //tokenRepository.save(token);
+        userRepository.save(userJpaRecord);
 
         return token;
     }
