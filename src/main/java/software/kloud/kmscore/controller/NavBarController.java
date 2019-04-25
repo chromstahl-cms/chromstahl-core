@@ -7,8 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import software.kloud.KMSPluginSDK.NavBarLinkRegister;
-import software.kloud.KMSPluginSDK.RoleService;
+import software.kloud.ChromPluginSDK.NavBarLinkRegister;
+import software.kloud.ChromPluginSDK.RoleService;
 import software.kloud.kms.entities.RoleJpaRecord;
 import software.kloud.kms.repositories.UserRepository;
 import software.kloud.kmscore.dto.NavBarLinkDTO;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Controller()
 @RequestMapping("/navbar")
-public class NavBarController extends software.kloud.KMSPluginSDK.AbsController {
+public class NavBarController extends software.kloud.ChromPluginSDK.AbsController {
     private final List<NavBarLinkRegister> navBarLinkRegisterList;
     private final UserRepository userRepository;
     private final RoleService roleService;

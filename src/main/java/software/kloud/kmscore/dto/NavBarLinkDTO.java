@@ -1,6 +1,6 @@
 package software.kloud.kmscore.dto;
 
-import software.kloud.KMSPluginSDK.NavBarEntity;
+import software.kloud.ChromPluginSDK.NavBarEntity;
 
 public class NavBarLinkDTO {
     private String linkText;

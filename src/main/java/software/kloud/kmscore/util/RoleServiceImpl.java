@@ -1,7 +1,7 @@
 package software.kloud.kmscore.util;
 
 import org.springframework.stereotype.Service;
-import software.kloud.KMSPluginSDK.RoleService;
+import software.kloud.ChromPluginSDK.RoleService;
 import software.kloud.kms.entities.RoleJpaRecord;
 import software.kloud.kms.repositories.RoleRepository;
 

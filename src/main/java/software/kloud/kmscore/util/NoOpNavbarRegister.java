@@ -1,8 +1,8 @@
 package software.kloud.kmscore.util;
 
 import org.springframework.stereotype.Component;
-import software.kloud.KMSPluginSDK.NavBarEntity;
-import software.kloud.KMSPluginSDK.NavBarLinkRegister;
+import software.kloud.ChromPluginSDK.NavBarEntity;
+import software.kloud.ChromPluginSDK.NavBarLinkRegister;
 
 import java.util.Collections;
 import java.util.List;
