@@ -33,6 +33,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
         var everythingOperation = createOperationIfNotExists("*");
 
         var adminRole = createRoleIfNotExists("ROLE_ADMIN", List.of(everythingOperation));
+        // TODO: Figure out operations
+        var userRole = createRoleIfNotExists("ROLE_USER", Collections.emptyList());
         var guestRole = createRoleIfNotExists("ROLE_GUEST", Collections.emptyList());
         alreadyInitialized = true;
     }
