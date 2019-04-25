@@ -34,7 +34,7 @@ public class NavBarController extends software.kloud.KMSPluginSDK.AbsController 
     }
 
     @GetMapping("/links")
-    public ResponseEntity<List<NavBarLinkDTO>> getNavBarLinks(@PathVariable Integer id) {
+    public ResponseEntity<List<NavBarLinkDTO>> getNavBarLinks() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (null == authentication) {
