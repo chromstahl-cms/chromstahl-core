@@ -1,6 +1,7 @@
 package software.kloud.kmscore.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -37,7 +38,7 @@ public class NavBarController extends software.kloud.ChromPluginSDK.AbsControlle
     public ResponseEntity<List<NavBarLinkDTO>> getNavBarLinks() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (null == authentication) {
+        if (null == authentication || authentication instanceof AnonymousAuthenticationToken) {
             List<NavBarLinkDTO> links = getLinksForRole(roleService.getGuestRole());
             return ResponseEntity.ok(links);
         }
