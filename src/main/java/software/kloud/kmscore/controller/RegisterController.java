@@ -61,6 +61,7 @@ public class RegisterController extends AbsController {
         }
         roleUserList.add(user);
         adminRole.setUserJpaRecordList(roleUserList);
+        userRepository.save(user);
         roleRepository.save(adminRole);
 
         if (checkForViolations(respDTO, user)) {
