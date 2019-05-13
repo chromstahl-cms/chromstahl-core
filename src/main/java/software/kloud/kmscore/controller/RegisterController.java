@@ -13,6 +13,7 @@ import software.kloud.kmscore.dto.RegisterDTO;
 import software.kloud.kmscore.dto.TokenResponseDTO;
 import software.kloud.kmscore.util.TokenFactory;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 
 @Controller
@@ -28,6 +29,7 @@ public class RegisterController extends AbsController {
     }
 
     @PostMapping("/register")
+    @Transactional
     public ResponseEntity<TokenResponseDTO> store(@RequestBody RegisterDTO registerDTO) {
         var respDTO = new TokenResponseDTO();
 
@@ -52,6 +54,14 @@ public class RegisterController extends AbsController {
         user.setUserName(registerDTO.getUserName());
         user.setEmail(registerDTO.geteMail());
         user.setPassword(BCrypt.hashpw(registerDTO.getPassword(), BCrypt.gensalt()));
+
+        var roleUserList = adminRole.getUserJpaRecordList();
+        if (null == roleUserList) {
+            roleUserList = new ArrayList<>();
+        }
+        roleUserList.add(user);
+        adminRole.setUserJpaRecordList(roleUserList);
+        roleRepository.save(adminRole);
 
         if (checkForViolations(respDTO, user)) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(respDTO);
