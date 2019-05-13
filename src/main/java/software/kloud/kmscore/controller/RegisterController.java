@@ -13,7 +13,6 @@ import software.kloud.kmscore.dto.RegisterDTO;
 import software.kloud.kmscore.dto.TokenResponseDTO;
 import software.kloud.kmscore.util.TokenFactory;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 
 @Controller
@@ -29,7 +28,6 @@ public class RegisterController extends AbsController {
     }
 
     @PostMapping("/register")
-    @Transactional
     public ResponseEntity<TokenResponseDTO> store(@RequestBody RegisterDTO registerDTO) {
         var respDTO = new TokenResponseDTO();
 
