@@ -4,5 +4,4 @@ RUN wget https://download.java.net/java/GA/jdk12/GPL/openjdk-12_linux-x64_bin.ta
 ENV PATH="$PATH:/opt/jvm/jdk-12/bin"
 WORKDIR /root/
 COPY build/libs/kms-core-0.0.1-SNAPSHOT.jar app.jar
-COPY src/main/resources/application-prod.properties application.properties
 ENTRYPOINT ["java", "-jar", "/root/app.jar"]
