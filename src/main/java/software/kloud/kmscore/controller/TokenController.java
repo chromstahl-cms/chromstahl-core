@@ -29,13 +29,13 @@ public class TokenController {
     public ResponseEntity<TokenResponseDTO> store(@RequestBody TokenAuthDTO authDTO) {
         UserJpaRecord users = userRepository
                 .findByUserName(authDTO.getUserName())
-                .orElseThrow(SecurityException::new);
+                .orElseThrow(() -> new SecurityException(String.format("User %s not found", authDTO.getUserName())));
 
         if (BCrypt.checkpw(authDTO.getPassword(), users.getPassword())) {
             String token = this.tokenFactory.generateToken(users).getToken();
             return ResponseEntity.ok(new TokenResponseDTO(token));
         }
 
-        throw new SecurityException();
+        throw new SecurityException("Could not login user. Incorrect password");
     }
 }
